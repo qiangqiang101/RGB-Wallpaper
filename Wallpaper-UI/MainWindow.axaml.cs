@@ -23,9 +23,12 @@ public partial class MainWindow : Window
 
     private string? _currentLoadedImage = null;
     private IImage? _cachedImage = null;
+#if WINDOWS
     private DispatcherTimer? _startupTimer = null;
     private int _startupTicksCount = 0;
+#endif
 
+#if WINDOWS
     [DllImport("user32.dll", SetLastError = true)]
     private static extern int GetWindowLong(IntPtr hWnd, int nIndex);
 
@@ -90,6 +93,7 @@ public partial class MainWindow : Window
             SetWindowPos(parent, shellViewParent, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
         }
     }
+#endif
 
     public MainWindow()
     {
@@ -126,14 +130,13 @@ public partial class MainWindow : Window
 
             UpdateVisuals();
 
+#if WINDOWS
             var hwnd = this.TryGetPlatformHandle()?.Handle;
             if (hwnd.HasValue && hwnd.Value != IntPtr.Zero)
             {
                 int extendedStyle = GetWindowLong(hwnd.Value, GWL_EXSTYLE);
                 SetWindowLong(hwnd.Value, GWL_EXSTYLE, extendedStyle | WS_EX_TRANSPARENT | WS_EX_NOACTIVATE | WS_EX_TOOLWINDOW);
             }
-
-            Connect();
 
             // Start a fast startup timer to check for Lively's parenting immediately
             _startupTimer = new DispatcherTimer
@@ -143,6 +146,9 @@ public partial class MainWindow : Window
             };
             _startupTimer.Tick += tmStartupCheck_Tick;
             _startupTimer.Start();
+#endif
+
+            Connect();
         }
         catch (Exception ex)
         {
@@ -152,7 +158,12 @@ public partial class MainWindow : Window
 
     public void Connect()
     {
-        if (Utils.IsProcessRunning("SignalRgb") || Utils.IsProcessRunning("RGBJunkie") || Utils.IsProcessRunning("OpenRGB"))
+        bool shouldConnect = Utils.IsProcessRunning("SignalRgb") || 
+                             Utils.IsProcessRunning("RGBJunkie") || 
+                             Utils.IsProcessRunning("OpenRGB") ||
+                             !RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+
+        if (shouldConnect)
         {
             try
             {
@@ -210,6 +221,7 @@ public partial class MainWindow : Window
             UpdateStatusText();
         }
 
+#if WINDOWS
         // Check if Lively has parented our window, and if so, dynamically configure it as a Z-ordered desktop child
         var hwnd = this.TryGetPlatformHandle()?.Handle;
         if (hwnd.HasValue && hwnd.Value != IntPtr.Zero)
@@ -229,8 +241,10 @@ public partial class MainWindow : Window
                 AlignZOrder(hwnd.Value, parent);
             }
         }
+#endif
     }
 
+#if WINDOWS
     private void tmStartupCheck_Tick(object? sender, EventArgs e)
     {
         _startupTicksCount++;
@@ -265,6 +279,7 @@ public partial class MainWindow : Window
             _startupTimer = null;
         }
     }
+#endif
 
     private void MainWindow_Closing(object? sender, WindowClosingEventArgs e)
     {

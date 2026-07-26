@@ -19,7 +19,7 @@ public static class Utils
     public static int CpuUsagePauseValue = 60;
     public static string? BackgroundImage = null;
     public static Stretch Stretch = Stretch.Uniform;
-    public static string BackgroundColor = "#FFFFFFFF";
+    public static string BackgroundColor = "#FF000000";
     public static int Port = 8133;
 
     private static readonly HttpClient _httpClient = new HttpClient();
@@ -172,8 +172,16 @@ public static class Utils
 
     public static bool IsProcessRunning(string processName)
     {
-        var processes = Process.GetProcesses();
-        return Array.Exists(processes, p => string.Equals(p.ProcessName, processName, StringComparison.OrdinalIgnoreCase));
+        try
+        {
+            var processes = Process.GetProcesses();
+            return Array.Exists(processes, p => !string.IsNullOrEmpty(p.ProcessName) && p.ProcessName.Contains(processName, StringComparison.OrdinalIgnoreCase));
+        }
+        catch (Exception ex)
+        {
+            Logger.Log($"Error getting processes: {ex.Message}");
+            return false;
+        }
     }
 
     public static void SetBlurIntensity(this Avalonia.Controls.Control control, int intensity)
