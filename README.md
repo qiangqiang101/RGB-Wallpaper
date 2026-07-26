@@ -1,10 +1,23 @@
 # RGB Wallpaper
 
+[中文 README](README.CN.md)
+
+![Github All Releases](https://img.shields.io/github/downloads/qiangqiang101/RGB-Wallpaper/total.svg)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/qiangqiang101/RGB-Wallpaper)
+![GitHub](https://img.shields.io/github/license/qiangqiang101/RGB-Wallpaper)
+![GitHub branch checks state](https://img.shields.io/github/checks-status/qiangqiang101/RGB-Wallpaper/master)
+![GitHub issues](https://img.shields.io/github/issues/qiangqiang101/RGB-Wallpaper)
+![GitHub forks](https://img.shields.io/github/forks/qiangqiang101/RGB-Wallpaper?style=social)
+![GitHub Repo stars](https://img.shields.io/github/stars/qiangqiang101/RGB-Wallpaper?style=social)
+![YouTube Channel Subscribers](https://img.shields.io/youtube/channel/subscribers/UCAZlasvEy1euunP1M7nwj5Q?style=social)
+[![Donate via PayPal](https://img.shields.io/badge/Donate-Paypal-brightgreen)](https://paypal.me/imnotmental)
+[![Follow on Patreon](https://img.shields.io/badge/Donate-Patreon-orange)](https://www.patreon.com/imnotmental)
+
 A high-performance desktop wallpaper application built with **Avalonia UI** targeting **.NET 10.0**. It translates lighting data from SignalRGB, OpenRGB, or RGBJunkie into custom, hardware-accelerated desktop visuals.
 
 ---
 
-## Features
+## ✨ Features
 
 - **Hardware-Accelerated Rendering**: Custom Skia-based rendering control (`LedCanvas`) driving 60+ FPS fluid animations.
 - **Audio Visualization**: Integrated loopback audio recording and FFT analysis (via `NAudio`) to drive offline music visualizers.
@@ -13,7 +26,26 @@ A high-performance desktop wallpaper application built with **Avalonia UI** targ
 
 ---
 
-## Configuration (`config.json`)
+## 💾 Download
+
+### Windows
+[Wallpaper Engine](WPE.md) | [Lively Wallpaper](LIVELY.md)
+
+### Linux
+[Linux x64](https://github.com/qiangqiang101/RGB-Wallpaper/releases) | [Linux arm64](https://github.com/qiangqiang101/RGB-Wallpaper/releases)
+
+---
+
+## 🚧 Prerequisite
+
+- [.NET 10.0 Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/10.0)
+- [Wallpaper Engine](https://store.steampowered.com/app/431960/Wallpaper_Engine/) | [Lively Wallpaper](https://github.com/rocksdanister/lively/releases/latest)
+- [OpenRGB](https://openrgb.org/) | [SignalRGB](https://signalrgb.com/) | [RGBJunkie](https://rgbjunkie.com/RGBJunkieApp/)
+- [OpenRGB Wallpaper Plugin](https://github.com/qiangqiang101/OpenRGB-Wallpaper-Engine) | [SignalRGB Wallpaper Plugin](https://github.com/qiangqiang101/SignalRGB-Wallpaper-Engine) | [RGBJunkie Wallpaper Plugin](https://github.com/qiangqiang101/SignalRGB-Wallpaper-Engine)
+
+---
+
+## ⚙️ Configuration (`config.json`)
 
 The application listens on the UDP port specified in `config.json`. The file is deployed to the output build directory:
 
@@ -27,14 +59,14 @@ The application listens on the UDP port specified in `config.json`. The file is 
 
 ---
 
-## How to Build
+## 🛠️ How to Build
 
 ### Prerequisites
 - **.NET 10.0 SDK** (or later) installed on your system.
 
 ---
 
-### Building on Windows
+### 🪟 Building on Windows
 
 On Windows, the application uses native Win32 APIs to hook into the desktop wallpaper structure (`WorkerW`/`Progman`) when hosted inside wallpaper managers like Lively Wallpaper and Wallpaper Engine.
 
@@ -59,7 +91,7 @@ dotnet run
 
 ---
 
-### Building on Linux
+### 🐧 Building on Linux
 
 Avalonia UI is fully cross-platform and runs natively on Linux (under both X11 and Wayland). The Windows-specific Win32 interop logic is safely wrapped and bypassed on non-Windows platforms.
 
