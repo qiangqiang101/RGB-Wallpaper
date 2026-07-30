@@ -32,7 +32,7 @@ A high-performance desktop wallpaper application built with **Avalonia UI** targ
 [Wallpaper Engine](WPE.md) | [Lively Wallpaper](LIVELY.md)
 
 ### Linux
-[Linux x64](https://github.com/qiangqiang101/RGB-Wallpaper/releases) | [Linux arm64](https://github.com/qiangqiang101/RGB-Wallpaper/releases)
+[Linux](LINUX.md)
 
 ---
 

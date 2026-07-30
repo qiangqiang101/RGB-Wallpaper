@@ -32,7 +32,7 @@
 [Wallpaper Engine](WPE.CN.md) | [Lively Wallpaper](LIVELY.CN.md)
 
 ### Linux
-[Linux x64](https://github.com/qiangqiang101/RGB-Wallpaper/releases) | [Linux arm64](https://github.com/qiangqiang101/RGB-Wallpaper/releases)
+[Linux](LINUX.CN.md)
 
 ---
 
