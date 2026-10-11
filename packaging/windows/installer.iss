@@ -1,4 +1,4 @@
-; Inno Setup script: installs RGB Wallpaper into Wallpaper Engine's "myprojects" folder.
+; Inno Setup script: installs RGB Wallpaper for Wallpaper Engine and/or Lively Wallpaper.
 ; Build:  iscc /DAppVersion=1.0.0 /DStageDir=<stage.ps1 output> installer.iss
 
 #ifndef AppVersion
@@ -10,59 +10,85 @@
 
 [Setup]
 AppId={{6D1E5B0C-3F5A-4B8E-9A52-7C1F0E2B8D41}
-AppName=RGB Wallpaper for Wallpaper Engine
+AppName=RGB Wallpaper
 AppVersion={#AppVersion}
 AppPublisher=I'm Not MentaL
 AppPublisherURL=https://github.com/qiangqiang101/RGB-Wallpaper
-DefaultDirName={code:GetDefaultDir}
-DirExistsWarning=no
+; Files go to the Wallpaper Engine / Lively folders chosen on the custom pages below,
+; so there is no single install dir. Uninstall data lives in a fixed location instead.
+CreateAppDir=no
+UninstallFilesDir={commonappdata}\RGBWallpaper
+UninstallDisplayName=RGB Wallpaper (Wallpaper Engine / Lively)
 ; Wallpaper Engine usually lives under Program Files (x86), so write access needs admin
 PrivilegesRequired=admin
 DisableProgramGroupPage=yes
-DisableReadyPage=no
-UsePreviousAppDir=no
 OutputDir=..\..\dist
-OutputBaseFilename=RGB-Wallpaper-WallpaperEngine-Setup-{#AppVersion}
+OutputBaseFilename=RGB-Wallpaper-Setup-{#AppVersion}
 Compression=lzma2/ultra
 SolidCompression=yes
 WizardStyle=modern
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
-UninstallDisplayName=RGB Wallpaper for Wallpaper Engine
 
 [Types]
-Name: "full"; Description: "All 4 displays"
-Name: "single"; Description: "Display 1 only"
-Name: "custom"; Description: "Custom: choose which displays"; Flags: iscustom
+Name: "full"; Description: "Wallpaper Engine and Lively (all 4 displays each)"
+Name: "wpe"; Description: "Wallpaper Engine only (all 4 displays)"
+Name: "lively"; Description: "Lively Wallpaper only (all 4 displays)"
+Name: "custom"; Description: "Custom: choose launcher and displays"; Flags: iscustom
 
 [Components]
-Name: "d1"; Description: "RGB Wallpaper (Display 1), port 8133"; Types: full single custom
-Name: "d2"; Description: "RGB Wallpaper (Display 2), port 8134"; Types: full
-Name: "d3"; Description: "RGB Wallpaper (Display 3), port 8135"; Types: full
-Name: "d4"; Description: "RGB Wallpaper (Display 4), port 8136"; Types: full
+Name: "wpe"; Description: "Wallpaper Engine"; Types: full wpe
+Name: "wpe\d1"; Description: "RGB Wallpaper (Display 1), port 8133"; Types: full wpe
+Name: "wpe\d2"; Description: "RGB Wallpaper (Display 2), port 8134"; Types: full wpe
+Name: "wpe\d3"; Description: "RGB Wallpaper (Display 3), port 8135"; Types: full wpe
+Name: "wpe\d4"; Description: "RGB Wallpaper (Display 4), port 8136"; Types: full wpe
+Name: "lively"; Description: "Lively Wallpaper"; Types: full lively
+Name: "lively\d1"; Description: "RGB Wallpaper (Display 1), port 8133"; Types: full lively
+Name: "lively\d2"; Description: "RGB Wallpaper (Display 2), port 8134"; Types: full lively
+Name: "lively\d3"; Description: "RGB Wallpaper (Display 3), port 8135"; Types: full lively
+Name: "lively\d4"; Description: "RGB Wallpaper (Display 4), port 8136"; Types: full lively
 
 [Files]
-; {app} is Wallpaper Engine's projects\myprojects folder; each display gets its own project folder.
-; Shared app files are copied once per selected display, with that display's own project.json/config.json.
-Source: "{#StageDir}\app\*"; DestDir: "{app}\rgbwallpaper1"; Components: d1; Flags: recursesubdirs createallsubdirs ignoreversion; Excludes: "*.pdb"
-Source: "{#StageDir}\wpe\rgbwallpaper1\*"; DestDir: "{app}\rgbwallpaper1"; Components: d1; Flags: ignoreversion
-Source: "..\assets\preview.gif"; DestDir: "{app}\rgbwallpaper1"; Components: d1; Flags: ignoreversion
+; The shared app files use identical source/flags for every display, so Setup stores them only once.
+; Each display then adds its own project.json/config.json (Wallpaper Engine) or LivelyInfo.json/config.json (Lively).
 
-Source: "{#StageDir}\app\*"; DestDir: "{app}\rgbwallpaper2"; Components: d2; Flags: recursesubdirs createallsubdirs ignoreversion; Excludes: "*.pdb"
-Source: "{#StageDir}\wpe\rgbwallpaper2\*"; DestDir: "{app}\rgbwallpaper2"; Components: d2; Flags: ignoreversion
-Source: "..\assets\preview.gif"; DestDir: "{app}\rgbwallpaper2"; Components: d2; Flags: ignoreversion
+; ---- Wallpaper Engine ----
+Source: "{#StageDir}\app\*"; DestDir: "{code:GetWpeDir}\rgbwallpaper1"; Components: wpe\d1; Flags: recursesubdirs createallsubdirs ignoreversion; Excludes: "*.pdb"
+Source: "{#StageDir}\wpe\rgbwallpaper1\*"; DestDir: "{code:GetWpeDir}\rgbwallpaper1"; Components: wpe\d1; Flags: ignoreversion
+Source: "..\assets\preview.gif"; DestDir: "{code:GetWpeDir}\rgbwallpaper1"; Components: wpe\d1; Flags: ignoreversion
 
-Source: "{#StageDir}\app\*"; DestDir: "{app}\rgbwallpaper3"; Components: d3; Flags: recursesubdirs createallsubdirs ignoreversion; Excludes: "*.pdb"
-Source: "{#StageDir}\wpe\rgbwallpaper3\*"; DestDir: "{app}\rgbwallpaper3"; Components: d3; Flags: ignoreversion
-Source: "..\assets\preview.gif"; DestDir: "{app}\rgbwallpaper3"; Components: d3; Flags: ignoreversion
+Source: "{#StageDir}\app\*"; DestDir: "{code:GetWpeDir}\rgbwallpaper2"; Components: wpe\d2; Flags: recursesubdirs createallsubdirs ignoreversion; Excludes: "*.pdb"
+Source: "{#StageDir}\wpe\rgbwallpaper2\*"; DestDir: "{code:GetWpeDir}\rgbwallpaper2"; Components: wpe\d2; Flags: ignoreversion
+Source: "..\assets\preview.gif"; DestDir: "{code:GetWpeDir}\rgbwallpaper2"; Components: wpe\d2; Flags: ignoreversion
 
-Source: "{#StageDir}\app\*"; DestDir: "{app}\rgbwallpaper4"; Components: d4; Flags: recursesubdirs createallsubdirs ignoreversion; Excludes: "*.pdb"
-Source: "{#StageDir}\wpe\rgbwallpaper4\*"; DestDir: "{app}\rgbwallpaper4"; Components: d4; Flags: ignoreversion
-Source: "..\assets\preview.gif"; DestDir: "{app}\rgbwallpaper4"; Components: d4; Flags: ignoreversion
+Source: "{#StageDir}\app\*"; DestDir: "{code:GetWpeDir}\rgbwallpaper3"; Components: wpe\d3; Flags: recursesubdirs createallsubdirs ignoreversion; Excludes: "*.pdb"
+Source: "{#StageDir}\wpe\rgbwallpaper3\*"; DestDir: "{code:GetWpeDir}\rgbwallpaper3"; Components: wpe\d3; Flags: ignoreversion
+Source: "..\assets\preview.gif"; DestDir: "{code:GetWpeDir}\rgbwallpaper3"; Components: wpe\d3; Flags: ignoreversion
 
-[Messages]
-SelectDirLabel3=Select the Wallpaper Engine "myprojects" folder (detected automatically from Steam when possible).
-SelectDirBrowseLabel=Click Next to continue, or Browse to pick a different Wallpaper Engine "myprojects" folder.
+Source: "{#StageDir}\app\*"; DestDir: "{code:GetWpeDir}\rgbwallpaper4"; Components: wpe\d4; Flags: recursesubdirs createallsubdirs ignoreversion; Excludes: "*.pdb"
+Source: "{#StageDir}\wpe\rgbwallpaper4\*"; DestDir: "{code:GetWpeDir}\rgbwallpaper4"; Components: wpe\d4; Flags: ignoreversion
+Source: "..\assets\preview.gif"; DestDir: "{code:GetWpeDir}\rgbwallpaper4"; Components: wpe\d4; Flags: ignoreversion
+
+; ---- Lively Wallpaper (<library>\wallpapers\<folder>) ----
+Source: "{#StageDir}\app\*"; DestDir: "{code:GetLivelyDir}\wallpapers\rgbwallpaper-display1"; Components: lively\d1; Flags: recursesubdirs createallsubdirs ignoreversion; Excludes: "*.pdb"
+Source: "{#StageDir}\lively-info\Display1\*"; DestDir: "{code:GetLivelyDir}\wallpapers\rgbwallpaper-display1"; Components: lively\d1; Flags: ignoreversion
+Source: "{#StageDir}\wpe\rgbwallpaper1\config.json"; DestDir: "{code:GetLivelyDir}\wallpapers\rgbwallpaper-display1"; Components: lively\d1; Flags: ignoreversion
+Source: "..\assets\thumb.gif"; DestDir: "{code:GetLivelyDir}\wallpapers\rgbwallpaper-display1"; Components: lively\d1; Flags: ignoreversion
+
+Source: "{#StageDir}\app\*"; DestDir: "{code:GetLivelyDir}\wallpapers\rgbwallpaper-display2"; Components: lively\d2; Flags: recursesubdirs createallsubdirs ignoreversion; Excludes: "*.pdb"
+Source: "{#StageDir}\lively-info\Display2\*"; DestDir: "{code:GetLivelyDir}\wallpapers\rgbwallpaper-display2"; Components: lively\d2; Flags: ignoreversion
+Source: "{#StageDir}\wpe\rgbwallpaper2\config.json"; DestDir: "{code:GetLivelyDir}\wallpapers\rgbwallpaper-display2"; Components: lively\d2; Flags: ignoreversion
+Source: "..\assets\thumb.gif"; DestDir: "{code:GetLivelyDir}\wallpapers\rgbwallpaper-display2"; Components: lively\d2; Flags: ignoreversion
+
+Source: "{#StageDir}\app\*"; DestDir: "{code:GetLivelyDir}\wallpapers\rgbwallpaper-display3"; Components: lively\d3; Flags: recursesubdirs createallsubdirs ignoreversion; Excludes: "*.pdb"
+Source: "{#StageDir}\lively-info\Display3\*"; DestDir: "{code:GetLivelyDir}\wallpapers\rgbwallpaper-display3"; Components: lively\d3; Flags: ignoreversion
+Source: "{#StageDir}\wpe\rgbwallpaper3\config.json"; DestDir: "{code:GetLivelyDir}\wallpapers\rgbwallpaper-display3"; Components: lively\d3; Flags: ignoreversion
+Source: "..\assets\thumb.gif"; DestDir: "{code:GetLivelyDir}\wallpapers\rgbwallpaper-display3"; Components: lively\d3; Flags: ignoreversion
+
+Source: "{#StageDir}\app\*"; DestDir: "{code:GetLivelyDir}\wallpapers\rgbwallpaper-display4"; Components: lively\d4; Flags: recursesubdirs createallsubdirs ignoreversion; Excludes: "*.pdb"
+Source: "{#StageDir}\lively-info\Display4\*"; DestDir: "{code:GetLivelyDir}\wallpapers\rgbwallpaper-display4"; Components: lively\d4; Flags: ignoreversion
+Source: "{#StageDir}\wpe\rgbwallpaper4\config.json"; DestDir: "{code:GetLivelyDir}\wallpapers\rgbwallpaper-display4"; Components: lively\d4; Flags: ignoreversion
+Source: "..\assets\thumb.gif"; DestDir: "{code:GetLivelyDir}\wallpapers\rgbwallpaper-display4"; Components: lively\d4; Flags: ignoreversion
 
 [Code]
 const
@@ -70,7 +96,12 @@ const
   WpeMarker = '\steamapps\common\wallpaper_engine';
 
 var
+  WpePage: TInputDirWizardPage;
+  LivelyPage: TInputDirWizardPage;
   WpeDetected: Boolean;
+  LivelyDetected: Boolean;
+
+{ ---------- Wallpaper Engine detection ---------- }
 
 // Returns the Steam install folder, or '' if Steam isn't installed.
 function GetSteamPath: String;
@@ -125,7 +156,7 @@ begin
   end;
 end;
 
-function GetDefaultDir(Param: String): String;
+function DetectWpeDir: String;
 var
   Steam, Lib: String;
 begin
@@ -138,31 +169,131 @@ begin
     begin
       WpeDetected := True;
       Result := Lib + WpeSubDir;
-      Exit;
-    end;
-    // Steam found but Wallpaper Engine isn't in any library: fall back to Steam's own library.
-    Result := Steam + WpeSubDir;
+    end
+    else
+      // Steam found but Wallpaper Engine isn't in any library: fall back to Steam's own library.
+      Result := Steam + WpeSubDir;
     Exit;
   end;
   Result := ExpandConstant('{commonpf32}') + '\Steam' + WpeSubDir;
 end;
 
+{ ---------- Lively detection ---------- }
+
+// Lively keeps its library location in %LOCALAPPDATA%\Lively Wallpaper\Settings.json:
+//   "WallpaperDir": "C:\\Users\\me\\AppData\\Local\\Lively Wallpaper\\Library",
+// Wallpapers live in <WallpaperDir>\wallpapers\<folder>.
+function DetectLivelyDir: String;
+var
+  Lines: TArrayOfString;
+  I, P: Integer;
+  Line: String;
+begin
+  Result := ExpandConstant('{localappdata}') + '\Lively Wallpaper\Library';
+  LivelyDetected := DirExists(ExpandConstant('{localappdata}') + '\Lively Wallpaper');
+  if not LoadStringsFromFile(ExpandConstant('{localappdata}') + '\Lively Wallpaper\Settings.json', Lines) then
+    Exit;
+  for I := 0 to GetArrayLength(Lines) - 1 do
+  begin
+    Line := Trim(Lines[I]);
+    if Pos('"WallpaperDir"', Line) = 1 then
+    begin
+      Delete(Line, 1, Length('"WallpaperDir"'));
+      P := Pos('"', Line);           // opening quote of the value
+      if P > 0 then
+      begin
+        Delete(Line, 1, P);
+        P := Pos('"', Line);         // closing quote
+        if P > 1 then
+        begin
+          Result := Copy(Line, 1, P - 1);
+          StringChangeEx(Result, '\\', '\', True);
+          LivelyDetected := True;
+        end;
+      end;
+      Exit;
+    end;
+  end;
+end;
+
+{ ---------- Wizard pages ---------- }
+
+// Silent installs can pass /WPEDIR="..." and /LIVELYDIR="..." to skip detection.
+function InitialDir(const ParamName, Detected: String): String;
+begin
+  Result := ExpandConstant('{param:' + ParamName + '|}');
+  if Result = '' then
+    Result := Detected;
+end;
+
 procedure InitializeWizard;
 begin
-  GetDefaultDir('');  // refresh WpeDetected regardless of when Setup evaluated DefaultDirName
-  if not WpeDetected then
-    MsgBox('Wallpaper Engine was not found automatically.' + #13#10 + #13#10 +
-      'On the next pages, choose your Wallpaper Engine "projects\myprojects" folder ' +
-      'manually. You can also cancel and install Wallpaper Engine from Steam first.',
-      mbInformation, MB_OK);
+  WpePage := CreateInputDirPage(wpSelectComponents, 'Wallpaper Engine',
+    'Where is Wallpaper Engine installed?',
+    'Select the Wallpaper Engine "projects\myprojects" folder (detected automatically from Steam when possible). ' +
+    'Click Next to continue.', False, '');
+  WpePage.Add('');
+  WpePage.Values[0] := InitialDir('WPEDIR', DetectWpeDir);
+
+  LivelyPage := CreateInputDirPage(WpePage.ID, 'Lively Wallpaper',
+    'Where is your Lively Wallpaper library?',
+    'Select your Lively library folder (the one that contains "wallpapers"; detected automatically from ' +
+    'Lively''s settings when possible). Click Next to continue.', False, '');
+  LivelyPage.Add('');
+  LivelyPage.Values[0] := InitialDir('LIVELYDIR', DetectLivelyDir);
+end;
+
+function GetWpeDir(Param: String): String;
+begin
+  Result := RemoveBackslash(WpePage.Values[0]);
+end;
+
+function GetLivelyDir(Param: String): String;
+begin
+  Result := RemoveBackslash(LivelyPage.Values[0]);
+end;
+
+function ShouldSkipPage(PageID: Integer): Boolean;
+begin
+  Result := False;
+  if PageID = WpePage.ID then
+    Result := not WizardIsComponentSelected('wpe')
+  else if PageID = LivelyPage.ID then
+    Result := not WizardIsComponentSelected('lively');
 end;
 
 function NextButtonClick(CurPageID: Integer): Boolean;
 begin
   Result := True;
-  if CurPageID = wpSelectDir then
-    if not DirExists(ExtractFileDir(WizardDirValue)) then
-      Result := MsgBox('The folder "' + WizardDirValue + '" does not look like a Wallpaper Engine ' +
-        'projects folder (its parent folder does not exist).' + #13#10 + #13#10 + 'Install here anyway?',
+
+  if CurPageID = wpSelectComponents then
+  begin
+    if not (WizardIsComponentSelected('wpe') or WizardIsComponentSelected('lively')) then
+    begin
+      MsgBox('Select at least one display to install.', mbError, MB_OK);
+      Result := False;
+    end;
+  end
+  else if CurPageID = WpePage.ID then
+  begin
+    if not DirExists(ExtractFileDir(WpePage.Values[0])) then
+      Result := MsgBox('"' + WpePage.Values[0] + '" does not look like a Wallpaper Engine projects ' +
+        'folder (its parent folder does not exist).' + #13#10 + #13#10 + 'Install here anyway?',
         mbConfirmation, MB_YESNO) = IDYES;
+  end
+  else if CurPageID = LivelyPage.ID then
+  begin
+    if not DirExists(LivelyPage.Values[0] + '\wallpapers') then
+      Result := MsgBox('"' + LivelyPage.Values[0] + '" does not contain a "wallpapers" folder, so it does ' +
+        'not look like a Lively library.' + #13#10 + #13#10 + 'Install here anyway?',
+        mbConfirmation, MB_YESNO) = IDYES;
+  end;
+end;
+
+procedure CurPageChanged(CurPageID: Integer);
+begin
+  if (CurPageID = WpePage.ID) and not WpeDetected then
+    WpePage.Description := 'Wallpaper Engine was not found automatically. Choose your Wallpaper Engine "projects\myprojects" folder manually.'
+  else if (CurPageID = LivelyPage.ID) and not LivelyDetected then
+    LivelyPage.Description := 'Lively Wallpaper was not found automatically. Choose your Lively library folder manually.';
 end;

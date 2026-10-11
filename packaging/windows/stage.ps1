@@ -2,7 +2,7 @@
 #
 #   <OutDir>/app/                      published app (no .pdb), shared by every display
 #   <OutDir>/wpe/rgbwallpaperN/        per-display project.json + config.json (Wallpaper Engine)
-#   <OutDir>/lively/*.zip              one drag & drop zip per display (Lively Wallpaper)
+#   <OutDir>/lively-info/DisplayN/     per-display LivelyInfo.json (Lively Wallpaper)
 #
 # Usage: ./stage.ps1 -PublishDir <dotnet publish output> -OutDir <staging dir> [-Version 1.2.3]
 param(
@@ -15,11 +15,10 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $root = Resolve-Path (Join-Path $PSScriptRoot '..')
-$assets = Join-Path $root 'assets'
 
 $app = Join-Path $OutDir 'app'
 Remove-Item $OutDir -Recurse -Force -ErrorAction SilentlyContinue
-New-Item -ItemType Directory -Force $app, (Join-Path $OutDir 'wpe'), (Join-Path $OutDir 'lively') | Out-Null
+New-Item -ItemType Directory -Force $app, (Join-Path $OutDir 'wpe'), (Join-Path $OutDir 'lively-info') | Out-Null
 
 # Shared app files. The base config.json is replaced per display, and debug symbols
 # (the native .pdb files alone are ~200 MB) are not needed at runtime.
@@ -44,13 +43,7 @@ for ($n = 1; $n -le $Displays; $n++) {
     [IO.File]::WriteAllText((Join-Path $wpe 'project.json'), $project, $utf8)
     [IO.File]::WriteAllText((Join-Path $wpe 'config.json'), $config, $utf8)
 
-    # --- Lively Wallpaper: complete folder, zipped with the files at the zip root ---
-    $lively = Join-Path $OutDir "lively-tmp/Display$n"
-    New-Item -ItemType Directory -Force $lively | Out-Null
-    Copy-Item (Join-Path $app '*') $lively -Recurse
-    Copy-Item (Join-Path $assets 'thumb.gif') $lively
-    [IO.File]::WriteAllText((Join-Path $lively 'config.json'), $config, $utf8)
-
+    # --- Lively Wallpaper: LivelyInfo.json (the installer adds the shared app files + thumb.gif)
     $info = [ordered]@{
         AppVersion     = '2.2.0.0'
         Title          = "RGB Wallpaper (Display $n)"
@@ -68,11 +61,10 @@ for ($n = 1; $n -le $Displays; $n++) {
         Tags           = $null
         Version        = 3
     }
-    [IO.File]::WriteAllText((Join-Path $lively 'LivelyInfo.json'), ($info | ConvertTo-Json), $utf8)
-
-    $zip = Join-Path $OutDir "lively/RGB-Wallpaper-Lively-Display$n-$Version.zip"
-    Compress-Archive -Path (Join-Path $lively '*') -DestinationPath $zip -CompressionLevel Optimal
+    $infoDir = Join-Path $OutDir "lively-info/Display$n"
+    New-Item -ItemType Directory -Force $infoDir | Out-Null
+    $infoJson = $info | ConvertTo-Json
+    [IO.File]::WriteAllText((Join-Path $infoDir 'LivelyInfo.json'), $infoJson, $utf8)
 }
 
-Remove-Item (Join-Path $OutDir 'lively-tmp') -Recurse -Force
 Write-Host "Staged $Displays displays into $OutDir"

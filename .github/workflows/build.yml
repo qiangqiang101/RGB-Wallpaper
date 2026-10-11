@@ -49,7 +49,7 @@ jobs:
         shell: pwsh
         run: ./packaging/windows/stage.ps1 -PublishDir publish -OutDir staging -Version $env:VERSION
 
-      - name: Build Wallpaper Engine installer
+      - name: Build installer (Wallpaper Engine + Lively)
         shell: pwsh
         run: |
           $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
@@ -61,14 +61,8 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: wallpaper-engine-installer
+          name: installer
           path: dist/*.exe
-          if-no-files-found: error
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: lively-wallpapers
-          path: staging/lively/*.zip
           if-no-files-found: error
 
   linux:
