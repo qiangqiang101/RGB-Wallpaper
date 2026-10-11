@@ -1,0 +1,133 @@
+name: Build
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PROJECT: Wallpaper-UI/Wallpaper-UI.csproj
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.v.outputs.version }}
+    steps:
+      - id: v
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          if [[ "$GITHUB_EVENT_NAME" == "release" ]]; then
+            echo "version=${RELEASE_TAG#v}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=0.0.0-ci.${GITHUB_RUN_NUMBER}" >> "$GITHUB_OUTPUT"
+          fi
+
+  windows:
+    needs: version
+    runs-on: windows-latest
+    env:
+      VERSION: ${{ needs.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      # Portable (framework-dependent) build, same layout Wallpaper Engine / Lively get today.
+      - name: Publish
+        run: dotnet publish $env:PROJECT -c Release -o publish
+
+      - name: Stage Wallpaper Engine + Lively files
+        shell: pwsh
+        run: ./packaging/windows/stage.ps1 -PublishDir publish -OutDir staging -Version $env:VERSION
+
+      - name: Build Wallpaper Engine installer
+        shell: pwsh
+        run: |
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) {
+            choco install innosetup --no-progress -y
+          }
+          & $iscc "/DAppVersion=$env:VERSION" "/DStageDir=$env:GITHUB_WORKSPACE\staging" packaging/windows/installer.iss
+          if ($LASTEXITCODE -ne 0) { throw "ISCC failed" }
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wallpaper-engine-installer
+          path: dist/*.exe
+          if-no-files-found: error
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lively-wallpapers
+          path: staging/lively/*.zip
+          if-no-files-found: error
+
+  linux:
+    needs: version
+    runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ needs.version.outputs.version }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { arch: amd64, rid: linux-x64 }
+          - { arch: arm64, rid: linux-arm64 }
+          - { arch: armhf, rid: linux-arm }
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Publish ${{ matrix.rid }}
+        run: |
+          dotnet publish "$PROJECT" -c Release -r ${{ matrix.rid }} --self-contained true \
+            -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true \
+            -p:DebugType=None -p:DebugSymbols=false \
+            -o publish
+
+      - name: Package
+        run: |
+          pkg="RGB-Wallpaper-linux-${{ matrix.arch }}-${VERSION}"
+          mkdir -p "$pkg"
+          cp publish/Wallpaper-UI publish/config.json "$pkg/"
+          cp packaging/linux/start.sh packaging/linux/set_wallpaper_window.py "$pkg/"
+          chmod +x "$pkg/Wallpaper-UI" "$pkg/start.sh" "$pkg/set_wallpaper_window.py"
+          tar -czf "$pkg.tar.gz" "$pkg"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-${{ matrix.arch }}
+          path: RGB-Wallpaper-linux-*.tar.gz
+          if-no-files-found: error
+
+  release:
+    if: github.event_name == 'release'
+    needs: [windows, linux]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Attach to release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          ls -la artifacts
+          gh release upload "$TAG" artifacts/* --repo "$GITHUB_REPOSITORY" --clobber

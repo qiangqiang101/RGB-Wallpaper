@@ -115,9 +115,4 @@ Run the published executable:
 ```
 
 #### 3. Linux Desktop Integration
-Since Linux does not have a single standard window compositor layer equivalent to Windows `WorkerW`, you can dock the transparent window to your desktop wallpaper layer using toolkits like:
-- **`xwinwrap`** (for X11 compositors):
-  ```bash
-  xwinwrap -g 1920x1080 -ni -s -b -nf -ov -- ./Wallpaper-UI
-  ```
-- Alternatively, check your desktop environment's window manager settings (e.g., KWin, Openbox, or GNOME extensions) to configure the window to stay at the bottom of the window stack without focus.
+See [Linux Integration](LINUX.md)

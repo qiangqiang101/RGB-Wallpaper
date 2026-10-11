@@ -115,9 +115,4 @@ Avalonia UI 完全跨平台，原生运行于 Linux 上（支持 X11 和 Wayland
 ```
 
 #### 3. Linux 桌面集成
-由于 Linux 没有类似于 Windows `WorkerW` 的统一标准窗口合成器层，您可以使用如下工具将透明窗口嵌入到桌面壁纸层：
-- **`xwinwrap`**（适用于 X11 合成器）：
-  ```bash
-  xwinwrap -g 1920x1080 -ni -s -b -nf -ov -- ./Wallpaper-UI
-  ```
-- 或者，检查您桌面环境的窗口管理器设置（例如 KWin、Openbox 或 GNOME 扩展），配置该窗口置于窗口栈底部且不获取焦点。
+阅读 [Linux 集成](LINUX.CN.md)

@@ -7,7 +7,7 @@
 A quick step-by-step guide to run the RGB Wallpaper app full screen on Linux (X11 / GNOME / Zorin OS) under desktop icons and panels.
 
 ### Step 1: Download Wallpaper App
-1. Download the [files above](#-download)
+1. Download the [files above](#️-download)
 
 2. Extract to your computer for example: ``/home/username/Applications/RGBWallpaper``.
 

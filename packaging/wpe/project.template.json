@@ -1,0 +1,40 @@
+{
+	"contentrating" : "Everyone",
+	"description" : "A high-performance desktop wallpaper application built with Avalonia UI targeting .NET 10.0. It translates lighting data from SignalRGB, OpenRGB, or RGBJunkie into custom, hardware-accelerated desktop visuals.\r\n\r\nPort: __PORT__",
+	"file" : "Wallpaper-UI.exe",
+	"general" : 
+	{
+		"properties" : 
+		{
+			"credits" : 
+			{
+				"index" : 2,
+				"order" : 102,
+				"text" : "<hr>Json.NET &copy; Newtonsoft<br />NAudio &copy; Mark Heath<br />SignalRGB Wallpaper &copy; Barholomew \"I'm Not MentaL\" Ho",
+				"type" : "text"
+			},
+			"port" : 
+			{
+				"index" : 0,
+				"order" : 100,
+				"text" : "<hr>Use Port >> <code>__PORT__</code> <<.",
+				"type" : "text"
+			},
+			"schemecolor" : 
+			{
+				"order" : 0,
+				"text" : "ui_browse_properties_scheme_color",
+				"type" : "color",
+				"value" : "0 0 0"
+			}
+		}
+	},
+	"preview" : "preview.gif",
+	"ratingsex" : "none",
+	"ratingviolence" : "none",
+	"tags" : [ "Relaxing" ],
+	"title" : "RGB Wallpaper (Display __N__)",
+	"type" : "application",
+	"version" : 0,
+	"visibility" : "public"
+}
